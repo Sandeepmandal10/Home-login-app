@@ -28,7 +28,8 @@
     }
 
     .login-container input[type="email"],
-    .login-container input[type="password"] {
+    .login-container input[type="password"],
+    .login-container input[type="number"] {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
@@ -52,21 +53,54 @@
     .login-container button:hover {
       background-color: #45a049;
     }
+
+    #otp-container {
+      display: none;
+    }
+
+    #otp-info {
+      color: green;
+      font-size: 14px;
+      text-align: center;
+    }
   </style>
+
+  <script>
+    function generateOtp() {
+      const email = document.getElementById("email").value;
+      if (!email) return;
+
+      fetch("/generate-otp?email=" + encodeURIComponent(email))
+        .then(response => response.text())
+        .then(otp => {
+          document.getElementById("otp-container").style.display = "block";
+          document.getElementById("otp-info").innerText = "Your OTP is: " + otp; // for demo only
+        });
+    }
+  </script>
 </head>
 <body>
 
 <div class="login-container">
   <h2>Login</h2>
+
   <form th:action="@{/login}" method="post">
     <label>Email:</label>
-    <input type="email" name="email" required>
+    <input type="email" name="email" id="email" required onblur="generateOtp()">
 
     <label>Password:</label>
     <input type="password" name="password" required>
 
+    <div id="otp-container">
+      <label>OTP:</label>
+      <input type="number" name="otpInput" required>
+      <p id="otp-info"></p>
+    </div>
+
     <button type="submit">Submit</button>
   </form>
+
+  <p th:if="${error}" th:text="${error}" style="color: red; text-align: center;"></p>
 </div>
 
 </body>
